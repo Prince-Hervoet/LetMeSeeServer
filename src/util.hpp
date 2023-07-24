@@ -37,4 +37,11 @@ namespace letMeSee
     private:
         sem_t semVar;
     };
+
+    class EpollPack
+    {
+    public:
+    private:
+        int epollFd;
+    };
 }

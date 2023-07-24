@@ -1,24 +1,25 @@
 #pragma once
 
 #include <ucontext.h>
+#include <list>
+#include <mutex>
 
-// 初始化
-#define INIT 1
-// 执行中
-#define RUNNING 2
-// 可执行
-#define READY 3
-// 暂停
-#define PAUSE 4
-// 结束
-#define END 5
-
-#define DEFAULT_STACK_SIZE 65535
+// 默认的协程栈大小 32KB
+#define DEFAULT_STACK_SIZE 32768
 
 typedef void (*routineFunc)(void *args);
 
 namespace letMeSee
 {
+    enum ROUTINE_STATUS
+    {
+        INIT = 1,
+        RUNNING = 2,
+        READY = 3,
+        PAUSE = 4,
+        END = 5
+    };
+
     class Routine
     {
     public:
@@ -31,12 +32,7 @@ namespace letMeSee
         ucontext_t &getCtx() const;
 
         void setRoutineFunc(routineFunc func, void *args);
-
-        void setInitStatus();
-        void setRunningStatus();
-        void setReadyStatus();
-        void setPauseStatus();
-        void setEndStatus();
+        void setStatus(enum ROUTINE_STATUS nStatus);
 
         void swapInThis();
         void swapOutThis();
@@ -49,13 +45,28 @@ namespace letMeSee
         // 栈大小
         int stackSize;
         // 协程状态
-        int status;
+        enum ROUTINE_STATUS status;
         // 协程上下文
         ucontext_t ctx;
         // 协程任务函数
         routineFunc func;
         // 任务函数参数
         void *funcArgs;
+    };
+
+    class RoutineCache
+    {
+    public:
+        RoutineCache();
+        RoutineCache(int capacity);
+
+        void giveback(Routine *routinePack);
+        void getRoutinePack() const;
+
+    private:
+        int capacity;
+        std::mutex mu;
+        std::list<Routine *> rlist;
     };
 
 }

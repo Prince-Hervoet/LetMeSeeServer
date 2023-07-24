@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+project(LetMeSeeServer)
+aux_source_directory(./src DIR_SRC)
+add_executable(LetMeSeeServer ${DIR_SRC})
+target_link_libraries(LetMeSeeServer pthread)
