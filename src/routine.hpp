@@ -11,6 +11,8 @@ typedef void (*routineFunc)(void *args);
 
 namespace letMeSee
 {
+    class Scheduler;
+
     enum ROUTINE_STATUS
     {
         INIT = 1,
@@ -52,6 +54,8 @@ namespace letMeSee
         routineFunc func;
         // 任务函数参数
         void *funcArgs;
+        // 所属的调度器
+        Scheduler *sc;
     };
 
     class RoutineCache

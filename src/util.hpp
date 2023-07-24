@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <semaphore.h>
+#include <sys/epoll.h>
 
 namespace letMeSee
 {
@@ -41,6 +42,12 @@ namespace letMeSee
     class EpollPack
     {
     public:
+        EpollPack();
+        ~EpollPack();
+
+        int epollCtl(int epollFd, int op, int targetFd, struct epoll_event *event);
+        int epollWait(int epollFd, struct epoll_event *event, int maxEvents, int timeout);
+
     private:
         int epollFd;
     };

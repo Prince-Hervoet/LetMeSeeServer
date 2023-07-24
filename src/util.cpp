@@ -28,4 +28,19 @@ namespace letMeSee
         sem_post(&(this->semVar));
     }
 
+    EpollPack::EpollPack()
+    {
+        int epollFd = epoll_create1(0);
+        if (epollFd == 1)
+        {
+            // todo: 出错处理
+        }
+        this->epollFd = epollFd;
+    }
+
+    EpollPack::~EpollPack()
+    {
+        close(this->epollFd);
+    }
+
 }
