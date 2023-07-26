@@ -20,10 +20,12 @@ public:
     EpollPack();
     ~EpollPack();
 
-    int epollCtl(int op, int fd, struct epoll_event *event);
+    int epollCtl(int op, int fd);
     int epollWait(struct epoll_event *events,
                   int maxevents, int timeout);
+    struct epoll_event *getEpollEvent();
 
 private:
     int epollFd;
+    struct epoll_event ev;
 };

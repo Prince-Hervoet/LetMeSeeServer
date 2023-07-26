@@ -1,14 +1,28 @@
 #pragma once
 
-#include <list>
+#include <vector>
 
 namespace letMeSee
 {
-    /**
-     * handler的链表组织
-     */
+    class DataHandler
+    {
+        virtual void solve(int fd) = 0;
+    };
+
+    class PipelineHandler
+    {
+        virtual void solve(void *args) = 0;
+    };
+
     class Pipeline
     {
+    public:
+        PipelineHandler *getNext();
+        bool hasNext();
+        void reset();
+
     private:
-        };
+        int currentIndex = 0;
+        std::vector<PipelineHandler *> handlers;
+    };
 }
