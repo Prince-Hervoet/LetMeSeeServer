@@ -1,5 +1,4 @@
 #include "lmss.hpp"
-
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -9,6 +8,22 @@
 
 namespace letMeSee
 {
+
+    void LmssApp::startServer(int port)
+    {
+        // 启动reactor
+        for (int i = 0; i < DEFAULT_REACTOR_SIZE; i++)
+        {
+            Reactor *reactor = new Reactor();
+            reactors.push_back(reactor);
+        }
+
+        // 启动任务处理池
+
+        // 开始监听新连接
+        acceptNewConnection(port);
+    }
+
     int LmssApp::acceptNewConnection(int port)
     {
         int listenFd = socket(AF_INET, SOCK_STREAM, 0);

@@ -1,7 +1,8 @@
 #pragma once
 
+#include <thread>
 #include "epoll_pack.hpp"
-#include "thread.hpp"
+#include "pipeline.hpp"
 
 #define DEFAULT_EPOLL_EVENT_MAX 32
 
@@ -15,11 +16,14 @@ namespace letMeSee
 
         void start();
         void addSocketFdToEpoll(int fd);
+        void setInPipeline(Pipeline *inPipeline);
+        void setOutPipeline(Pipeline *outPipeline);
 
     private:
         static void eventLoop(void *args);
         volatile bool isStoped = false;
         EpollPack epollPack;
-        Thread *t;
+        Pipeline *inPipeline;
+        Pipeline *outPipeline;
     };
 }

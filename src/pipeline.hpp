@@ -17,12 +17,13 @@ namespace letMeSee
     class Pipeline
     {
     public:
+        void addLast(PipelineHandler *handler);
         PipelineHandler *getNext();
         bool hasNext();
         void reset();
 
     private:
-        int currentIndex = 0;
+        int currentIndex = -1;
         std::vector<PipelineHandler *> handlers;
     };
 }

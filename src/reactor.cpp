@@ -6,9 +6,18 @@ namespace letMeSee
     void Reactor::start()
     {
         // 开启线程
-        Thread *t = new Thread(Reactor::eventLoop, this);
-        this->t = t;
-        t->start();
+        std::thread t(Reactor::eventLoop, this);
+        t.detach();
+    }
+
+    void Reactor::setInPipeline(Pipeline *inPipeline)
+    {
+        this->inPipeline = inPipeline;
+    }
+
+    void Reactor::setOutPipeline(Pipeline *outPipeline)
+    {
+        this->outPipeline = outPipeline;
     }
 
     void Reactor::addSocketFdToEpoll(int fd)
