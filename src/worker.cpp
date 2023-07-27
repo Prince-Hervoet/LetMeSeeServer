@@ -44,17 +44,18 @@ namespace letMeSee
             return false;
         }
         std::unique_lock<std::mutex> lock(mu);
-        if (isStoped)
-        {
-            return false;
-        }
-        if (taskSize == capacity)
+        if (isStoped || (taskSize == capacity))
         {
             return false;
         }
         routines.push_back(routine);
         taskSize += 1;
         return true;
+    }
+
+    int Worker::getSize() const
+    {
+        return taskSize;
     }
 
     void Worker::start()
@@ -117,6 +118,7 @@ namespace letMeSee
         }
         routine->setStatus(RUNNING);
         this->running = routine;
+        this->lastUpdateAt = getNowTimestampMic();
         Routine::swapContext(routine, this->host);
     }
 

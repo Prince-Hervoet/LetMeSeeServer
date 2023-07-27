@@ -27,6 +27,21 @@ namespace letMeSee
         bool push(Routine *routine);
 
         /**
+         * 获取任务数量
+         */
+        int getSize() const;
+
+        /**
+         * 获取最后一次更新时间戳
+         */
+        size_t getLastUpdateAt();
+
+        /**
+         * 设置最后一次更新时间戳
+         */
+        void setLastUpdateAt(size_t lastUpdateAt);
+
+        /**
          * 启动worker线程，只能启动一次
          */
         void start();
@@ -73,5 +88,7 @@ namespace letMeSee
 
         // 协程队列
         std::list<Routine *> routines;
+
+        size_t lastUpdateAt;
     };
 }

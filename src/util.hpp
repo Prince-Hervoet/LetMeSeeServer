@@ -4,10 +4,13 @@
 
 #define DEFAULT_ROUTINE_STACK_SIZE 65536
 #define DEFAULT_WORKER_ROUTINE_CAP 64
+#define DEFAULT_TASK_RUNTIME 16
 
 namespace letMeSee
 {
     size_t getNowTimestampMs();
+
+    size_t getNowTimestampMic();
 
     class Task
     {

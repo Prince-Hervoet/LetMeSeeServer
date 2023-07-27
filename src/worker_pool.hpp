@@ -1,12 +1,25 @@
 #pragma once
 
-#include <vector>
+#include <list>
+#include <queue>
 #include "worker.hpp"
+#include "routine_cache.hpp"
 #include "sem_pack.hpp"
 #include "util.hpp"
 
 namespace letMeSee
 {
+    typedef struct WorkerNode
+    {
+        Worker *worker;
+        size_t expectTimestamp;
+
+        bool operator<(const struct WorkerNode *other) const
+        {
+            return expectTimestamp < other->expectTimestamp;
+        }
+    } WorkerNode;
+
     class WorkerPool
     {
     public:
@@ -17,9 +30,19 @@ namespace letMeSee
 
     private:
         void init();
+        static void monitor(std::list<Worker *> &workers);
+        static size_t getExpect(size_t nowTimestamp, Worker *worker)
+        {
+            return nowTimestamp + worker->getSize() * DEFAULT_TASK_RUNTIME;
+        }
+
+        WorkerNode *createWorker();
         int capacity;
+        int workerSize;
         int taskSize;
         SemaphorePack sem = 1;
-        std::vector<Worker *> workers;
+        RoutineCache routineCache;
+        std::list<Worker *> workers;
+        std::priority_queue<WorkerNode *> minHeap;
     };
 }

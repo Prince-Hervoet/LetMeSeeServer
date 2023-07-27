@@ -2,11 +2,15 @@
 
 namespace letMeSee
 {
-    Routine::Routine() {}
+    Routine::Routine()
+    {
+        this->status = INIT;
+    }
 
     Routine::Routine(Task *task)
     {
         this->task = task;
+        this->status = INIT;
     }
 
     Routine::~Routine()
