@@ -3,6 +3,7 @@
 #include <list>
 #include <mutex>
 #include <thread>
+#include <csignal>
 #include <condition_variable>
 #include "routine.hpp"
 #include "util.hpp"
@@ -32,6 +33,11 @@ namespace letMeSee
         int getSize() const;
 
         /**
+         * 获取id
+         */
+        size_t getWid();
+
+        /**
          * 获取最后一次更新时间戳
          */
         size_t getLastUpdateAt();
@@ -51,6 +57,8 @@ namespace letMeSee
          */
         void stop();
 
+        static Worker *getThis();
+
     private:
         /**
          * 线程执行的任务函数
@@ -58,9 +66,16 @@ namespace letMeSee
         static void workerFunc(void *args);
 
         /**
+         * 中断处理函数
+         */
+        static void signalHandler(int signal);
+
+        /**
          * 切换到指定协程运行
          */
         void swapIn(Routine *routine);
+
+        size_t wid;
 
         // 是否被停止
         volatile bool isStoped;

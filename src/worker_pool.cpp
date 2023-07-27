@@ -53,9 +53,11 @@ namespace letMeSee
             size_t nowTimestamp = getNowTimestampMic();
             for (auto worker : workers)
             {
-                if (nowTimestamp - worker->getLastUpdateAt() >= runtimeMic)
+                size_t target = worker->getLastUpdateAt();
+                if (target != -1 && nowTimestamp - target >= runtimeMic)
                 {
                     // 发起中断信号
+                    std::raise(worker->getWid());
                 }
             }
         }

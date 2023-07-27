@@ -2,6 +2,7 @@
 
 namespace letMeSee
 {
+    static thread_local Worker *me = nullptr;
 
     Worker::Worker()
         : capacity(DEFAULT_WORKER_ROUTINE_CAP), running(nullptr), taskSize(0)
@@ -58,6 +59,11 @@ namespace letMeSee
         return taskSize;
     }
 
+    size_t Worker::getWid()
+    {
+        return wid;
+    }
+
     void Worker::start()
     {
         if (isStarted)
@@ -77,6 +83,9 @@ namespace letMeSee
     void Worker::workerFunc(void *args)
     {
         Worker *worker = (Worker *)args;
+        me = worker;
+        std::signal(worker->wid, Worker::signalHandler);
+
         while (!worker->isStoped)
         {
             Routine *routine = worker->pop();
@@ -100,6 +109,11 @@ namespace letMeSee
         }
     }
 
+    Worker *Worker::getThis()
+    {
+        return me;
+    }
+
     void Worker::swapIn(Routine *routine)
     {
         switch (routine->getStatus())
@@ -120,6 +134,18 @@ namespace letMeSee
         this->running = routine;
         this->lastUpdateAt = getNowTimestampMic();
         Routine::swapContext(routine, this->host);
+        this->running = nullptr;
+        this->lastUpdateAt = -1;
     }
 
+    void Worker::signalHandler(int signal)
+    {
+        Worker *worker = Worker::getThis();
+        if (worker->running == nullptr)
+        {
+            return;
+        }
+        worker->running->setStatus(PAUSE);
+        swapcontext(&(worker->running->getCtx()), &(worker->host));
+    }
 }
