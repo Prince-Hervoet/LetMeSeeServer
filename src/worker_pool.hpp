@@ -26,12 +26,21 @@ namespace letMeSee
         WorkerPool();
         WorkerPool(int workerCap, int workerTaskCap);
         ~WorkerPool();
+
+        /**
+         * 添加任务到池中
+         */
         int addTask(Task *task);
 
     private:
-        void init();
+        /**
+         * 监控线程执行函数
+         */
         static void monitor(std::list<Worker *> &workers);
 
+        /**
+         * 计算期望时间戳
+         */
         static size_t getExpect(size_t nowTimestamp, Worker *worker)
         {
             return nowTimestamp + worker->getSize() * DEFAULT_TASK_RUNTIME;
