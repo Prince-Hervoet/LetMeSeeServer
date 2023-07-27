@@ -1,30 +1,25 @@
 #include "routine.hpp"
-#include "scheduler.hpp"
-#include <string.h>
 
 namespace letMeSee
 {
     Routine::Routine() {}
 
-    Routine::~Routine()
+    Routine::Routine(Task *task)
     {
-        if (this->stack)
-        {
-            delete[] stack;
-        }
+        this->task = task;
     }
 
-    void Routine::reset()
+    Routine::~Routine()
     {
-        if (this->stack)
-        {
+        if (stack)
             delete[] stack;
-        }
-        this->stack = nullptr;
-        this->stackSize = 0;
-        taskFunc = nullptr;
-        args = nullptr;
-        memset(&(this->ctx), 0, sizeof(this->ctx));
+        if (task)
+            delete task;
+    }
+
+    size_t Routine::getRid() const
+    {
+        return this->rid;
     }
 
     char *Routine::getStack(int &stackSize)
@@ -38,14 +33,14 @@ namespace letMeSee
         return this->ctx;
     }
 
-    RoutineFunc Routine::getTaskFunc()
+    RoutineStatus Routine::getStatus() const
     {
-        return this->taskFunc;
+        return this->status;
     }
 
-    void *Routine::getArgs()
+    Task *Routine::getTask()
     {
-        return this->args;
+        return this->task;
     }
 
     void Routine::setStatus(RoutineStatus status)
@@ -53,26 +48,83 @@ namespace letMeSee
         this->status = status;
     }
 
-    void Routine::swapIn()
+    void Routine::setTask(Task *task)
     {
-        switch (this->status)
+        this->task = task;
+    }
+
+    void Routine::init(int stackSize)
+    {
+        if (status != INIT)
         {
-        case INIT:
-            this->stack = new char[DEFAULT_ROUTINE_STACK_SIZE];
-            this->stackSize = DEFAULT_ROUTINE_STACK_SIZE;
-            getcontext(&(this->ctx));
-            this->ctx.uc_stack.ss_sp = this->stack;
-            this->ctx.uc_stack.ss_size = DEFAULT_ROUTINE_STACK_SIZE;
-            break;
-        case READY:
-            break;
-        case PAUSE:
-            break;
-        default:
             return;
         }
-        makecontext(&(this->ctx), (void (*)(void))(this->taskFunc), 0);
-        this->status = RUNNING;
+        stack = new char[stackSize];
+        this->stackSize = stackSize;
+        this->status = READY;
+    }
+
+    void Routine::clear()
+    {
+        this->status = INIT;
+        if (stack)
+            delete[] stack;
+        stack = nullptr;
+
+        stackSize = 0;
+
+        memset(&ctx, 0, sizeof(ctx));
+
+        if (task)
+            delete task;
+        task = nullptr;
+    }
+
+    void Routine::getContext(Routine *routine)
+    {
+        if (routine == nullptr)
+            return;
+        getcontext(&(routine->ctx));
+    }
+
+    void Routine::setContext(Routine *routine, ucontext_t &host)
+    {
+        if (routine == nullptr)
+            return;
+        routine->ctx.uc_stack.ss_sp = routine->stack;
+        routine->ctx.uc_stack.ss_size = routine->stackSize;
+        routine->ctx.uc_link = &host;
+    }
+
+    void Routine::makeContext(Routine *routine)
+    {
+        if (routine == nullptr)
+            return;
+
+        makecontext(&(routine->ctx), (void (*)())Routine::routineFunc, 1, routine);
+    }
+
+    void Routine::swapContext(Routine *routine, ucontext_t &host)
+    {
+        if (routine == nullptr)
+            return;
+
+        swapcontext(&host, &(routine->ctx));
+    }
+
+    void Routine::routineFunc(void *args)
+    {
+        Routine *routine = (Routine *)args;
+        try
+        {
+            routine->task->run();
         }
+        catch (std::exception &e)
+        {
+            std::cout << e.what() << std::endl;
+        }
+        routine->clear();
+        routine->status = END;
+    }
 
 }

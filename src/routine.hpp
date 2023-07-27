@@ -2,23 +2,21 @@
 
 #include <iostream>
 #include <ucontext.h>
-#include <mutex>
-#include <list>
-
-typedef void (*RoutineFunc)(void *args);
-
-#define DEFAULT_ROUTINE_STACK_SIZE 32768
+#include <string.h>
+#include "util.hpp"
 
 namespace letMeSee
 {
-    class Scheduler;
+    /**
+     * 协程状态
+     */
     enum RoutineStatus
     {
-        INIT,    // 初始化
-        READY,   // 可运行
-        RUNNING, // 运行中
-        PAUSE,   // 暂停
-        END      // 运行结束
+        INIT,
+        READY,
+        RUNNING,
+        PAUSE,
+        END
     };
 
     typedef enum RoutineStatus RoutineStatus;
@@ -27,12 +25,13 @@ namespace letMeSee
     {
     public:
         Routine();
+        Routine(Task *task);
         ~Routine();
 
         /**
-         * 重置参数，rid不会重置
+         * 获取rid
          */
-        void reset();
+        size_t getRid() const;
 
         /**
          * 获取栈指针
@@ -45,14 +44,14 @@ namespace letMeSee
         ucontext_t &getCtx();
 
         /**
-         * 获取任务函数
+         * 获取协程状态
          */
-        RoutineFunc getTaskFunc();
+        RoutineStatus getStatus() const;
 
         /**
-         * 获取任务函数参数
+         * 获取任务结构
          */
-        void *getArgs();
+        Task *getTask();
 
         /**
          * 设置状态
@@ -60,44 +59,44 @@ namespace letMeSee
         void setStatus(RoutineStatus status);
 
         /**
-         * 切换到这个协程运行
+         * 设置任务结构
          */
-        void swapIn();
+        void setTask(Task *task);
 
         /**
-         * 将当前切换暂停切出
+         * 初始化 -- ready
          */
-        void swapOut();
+        void init(int stackSize);
+
+        /**
+         * 清除内部属性
+         */
+        void clear();
+
+        static void getContext(Routine *routine);
+        static void setContext(Routine *routine, ucontext_t &host);
+        static void makeContext(Routine *routine);
+        static void swapContext(Routine *routine, ucontext_t &host);
 
     private:
+        static void routineFunc(void *args);
+
         // 协程id
         size_t rid;
-        // 状态
+
+        // 协程状态
         RoutineStatus status;
-        // 栈
+
+        // 栈空间
         char *stack;
+
         // 栈大小
         int stackSize;
+
         // 上下文
         ucontext_t ctx;
-        // 任务函数
-        RoutineFunc taskFunc;
-        // 参数
-        void *args;
-        // 所属的调度器
-        Scheduler *sc;
-    };
 
-    class RoutineCache
-    {
-    public:
-        RoutineCache();
-        ~RoutineCache();
-        Routine *pop();
-        bool push(Routine *routine);
-
-    private:
-        int capacity = 0;
-        std::list<Routine *> routines;
+        // 执行的任务
+        Task *task;
     };
 }
