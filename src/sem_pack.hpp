@@ -4,6 +4,9 @@
 
 namespace letMeSee
 {
+    /**
+     * 信号量封装
+     */
     class SemaphorePack
     {
     public:

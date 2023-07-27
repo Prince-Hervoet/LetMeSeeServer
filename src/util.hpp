@@ -8,8 +8,14 @@
 
 namespace letMeSee
 {
+    /**
+     * 获取当前时间戳ms
+     */
     size_t getNowTimestampMs();
 
+    /**
+     * 获取当前时间戳ns
+     */
     size_t getNowTimestampMic();
 
     class Task
