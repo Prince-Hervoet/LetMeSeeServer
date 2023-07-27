@@ -3,6 +3,19 @@
 
 namespace letMeSee
 {
+    WorkerPool::WorkerPool()
+    {
+    }
+
+    WorkerPool::WorkerPool(int workerCap, int workerTaskCap)
+        : workerCapacity(workerCap), workerTaskCap(workerTaskCap)
+    {
+    }
+
+    WorkerPool::~WorkerPool()
+    {
+    }
+
     int WorkerPool::addTask(Task *task)
     {
         sem.wait();
@@ -14,7 +27,7 @@ namespace letMeSee
         routine->setTask(task);
         size_t nowTimestamp = getNowTimestampMs();
         isOk = worker1->push(routine);
-        if (!isOk && (workerSize < capacity))
+        if (!isOk && (workerSize < workerCapacity))
         {
             WorkerNode *node2 = createWorker();
             Worker *worker2 = node2->worker;

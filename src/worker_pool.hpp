@@ -31,17 +31,18 @@ namespace letMeSee
     private:
         void init();
         static void monitor(std::list<Worker *> &workers);
+
         static size_t getExpect(size_t nowTimestamp, Worker *worker)
         {
             return nowTimestamp + worker->getSize() * DEFAULT_TASK_RUNTIME;
         }
 
         WorkerNode *createWorker();
-        int capacity;
+        int workerCapacity;
+        int workerTaskCap;
         int workerSize;
-        int taskSize;
         SemaphorePack sem = 1;
-        RoutineCache routineCache;
+        RoutineCache routineCache = 128;
         std::list<Worker *> workers;
         std::priority_queue<WorkerNode *> minHeap;
     };

@@ -88,6 +88,7 @@ namespace letMeSee
 
         while (!worker->isStoped)
         {
+            // 获取任务
             Routine *routine = worker->pop();
             if (routine == nullptr)
             {
