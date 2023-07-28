@@ -5,6 +5,8 @@ namespace letMeSee
 {
     WorkerPool::WorkerPool()
     {
+        this->workerTaskCap = DEFAULT_WORKER_ROUTINE_CAP;
+        this->workerCapacity = DEFAULT_WORKER_CAP;
     }
 
     WorkerPool::WorkerPool(int workerCap, int workerTaskCap)

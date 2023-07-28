@@ -4,6 +4,7 @@
 #include <queue>
 #include "worker.hpp"
 #include "routine_cache.hpp"
+#include "./solve/pipeline.hpp"
 #include "sem_pack.hpp"
 #include "util.hpp"
 
@@ -27,10 +28,17 @@ namespace letMeSee
         WorkerPool(int workerCap, int workerTaskCap);
         ~WorkerPool();
 
+        void start();
+
+        void setInPipeline(Pipeline *inPipeline);
+
+        void setOutPipeline(Pipeline *outPipeline);
+
         /**
          * 添加任务到池中
          */
-        int addTask(Task *task);
+        int
+        addTask(Task *task);
 
     private:
         /**
@@ -47,8 +55,14 @@ namespace letMeSee
         }
 
         WorkerNode *createWorker();
+
+        // 线程最大数量
         int workerCapacity;
+
+        // 线程的任务最大数量
         int workerTaskCap;
+
+        // 线程数
         int workerSize;
         SemaphorePack sem = 1;
         RoutineCache routineCache = 128;

@@ -2,5 +2,5 @@
 
 int main()
 {
-    letMeSee::Worker *worker = new letMeSee::Worker();
+    letMeSee::WorkerPool *wp = new letMeSee::WorkerPool();
 }
